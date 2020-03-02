@@ -8,16 +8,16 @@ using Telegram.Bot.Args;
 
 namespace WeatherBot
 {
-   
+
     class Program
     {
         const int Delay = 15000;
-        static ITelegramBotClient botClient;
-        static Dictionary<string, long> users = new Dictionary<string, long>();
+        static TelegramBotClient botClient = new TelegramBotClient("1126393989:AAF36fKABGN07pWkoHwWBdN_jUGE-qtKobs");
+        static List<User> users = new List<User>();
         static string weatherString = new string("");
-        public  async static void WeatherThread()
+        public static void WeatherThread()
         {
-            while(true)
+            while (true)
             {
                 try
                 {
@@ -33,11 +33,10 @@ namespace WeatherBot
                             ". Humidity is " + humidity.Trim() + "% and wind is " + wind.Trim() + "m/s.";
                     Console.WriteLine(weatherString);
                     foreach (var user in users)
-                    {
-                        await botClient.SendTextMessageAsync(
-                            chatId: user.Value,
-                             text: "Hello " + user.Key + ", here`s your weather:\n " + weatherString
-                    );
+                    {   if (user.IsRunning && !user.workCode)
+                        {
+                            user.RunMessages(botClient, weatherString);
+                        }
                     }
                     Thread.Sleep(Delay);
                 }
@@ -49,12 +48,7 @@ namespace WeatherBot
         }
         static void Main(string[] args)
         {
-            botClient = new TelegramBotClient("1126393989:AAF36fKABGN07pWkoHwWBdN_jUGE-qtKobs");
-            var me = botClient.GetMeAsync().Result;
-            Console.WriteLine(
-              $"Hello, World! I am user {me.Id} and my name is {me.FirstName}."
-            );
-
+            Console.WriteLine($"Successfully initialized!");
             botClient.OnMessage += Bot_OnMessage;
             botClient.StartReceiving();
             WeatherThread();
@@ -63,57 +57,131 @@ namespace WeatherBot
 
         static async void Bot_OnMessage(object sender, MessageEventArgs e)
         {
-            if (e.Message.Text != null)
+           
+            try { 
+                if (e.Message.Text != null)
+                {
+
+                    Console.WriteLine($"Received a text message {e.Message.Text} in chat {e.Message.Chat.Id}.");
+
+                    if (e.Message.Text == "/start")
+                    {
+                        await botClient.SendTextMessageAsync(
+                           chatId: e.Message.Chat,
+                            text: $"Hello {e.Message.Chat.FirstName}! \nWrite /register to start recieving weather messages."
+                            );
+                    }
+
+                    if (e.Message.Text == "/register")
+                    {
+
+                        if (!users.Exists(x => x.Id == e.Message.Chat.Id)) {
+                            var user = new User(e.Message.Chat.FirstName, e.Message.Chat.Id);
+                            users.Add(user);
+                            await botClient.SendTextMessageAsync(
+                                chatId: e.Message.Chat,
+                                text: $"You're successfully registered! " +
+                                $"\nEnter command /delay and number of minutes to set delay and then enter command /run_messages."
+                             );
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(
+                            chatId: e.Message.Chat,
+                             text: "You're already registered!"
+                             );
+                        }
+
+                    }
+
+                    if (e.Message.Text == "/unregister")
+                    {
+
+                        if (users.Exists(x => x.Id == e.Message.Chat.Id))
+                        {
+                            users.Remove(users.Find(x => x.Id == e.Message.Chat.Id));
+                            await botClient.SendTextMessageAsync(
+                            chatId: e.Message.Chat,
+                             text: $"You're successfully unregistered, now you won't receive messages!"
+                             );
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(
+                            chatId: e.Message.Chat,
+                             text: "You aren't registered yet!"
+                             );
+                        }
+
+                    }
+
+                    if (e.Message.Text.Contains("/delay"))
+                    {
+                        int result = 0;
+                        int.TryParse(e.Message.Text.Replace("/delay", "").Trim(), out result);
+                        // Int32 limit is 2.147.483.647, so (result * 1000* 60 < 2.147.483.647) must be true
+                        if ((result <= 0) || (result > 35500))
+                        {
+                            await botClient.SendTextMessageAsync(
+                            chatId: e.Message.Chat,
+                             text: "Number is wrong!You will receive messages with previous delay when you enter /run_messages !"
+                             );
+                        }
+                        else
+                        {
+                            users.Find(x => x.Id == e.Message.Chat.Id).Delay = result * 1000 * 60;
+                            users.Find(x => x.Id == e.Message.Chat.Id).IsRunning = false;
+                            await botClient.SendTextMessageAsync(
+                               chatId: e.Message.Chat,
+                                text: $"Delay set!Delay is now {users.Find(x => x.Id == e.Message.Chat.Id).Delay / 1000 / 60} minutes! You won't receive messages untill you enter /run_messages!"
+                                );
+                        }
+                    }
+
+                    if (e.Message.Text == "/run_messages")
+                    {
+                        if (users.Exists(x => x.Id == e.Message.Chat.Id)){
+
+                            if (users.Find(x => x.Id == e.Message.Chat.Id).Delay == -1)
+                            {
+                                await botClient.SendTextMessageAsync(
+                               chatId: e.Message.Chat,
+                                text: "You need to enter /delay at first!"
+                                );
+                            }
+                            users.Find(x => x.Id == e.Message.Chat.Id).IsRunning = true;
+
+                            await botClient.SendTextMessageAsync(
+                               chatId: e.Message.Chat,
+                                text: $"Weather now is: {weatherString}. You will receive messages every {users.Find(x => x.Id == e.Message.Chat.Id).Delay / 1000 / 60} minutes!"
+                                );
+                        }
+                    }
+
+                    if (e.Message.Text == "/stop_messages")
+                    {
+                        if (users.Exists(x => x.Id == e.Message.Chat.Id))
+                        {
+                            users.Find(x => x.Id == e.Message.Chat.Id).IsRunning = false;
+
+                            await botClient.SendTextMessageAsync(
+                               chatId: e.Message.Chat,
+                                text: $"Weather now is: {weatherString}. You won't receive messages anymore!"
+                                );
+                        }
+                    }
+
+                    if (e.Message.Text.Contains("/weather")) 
+                    {
+                        await botClient.SendTextMessageAsync(
+                           chatId: e.Message.Chat,
+                            text: $"Weather now is: {weatherString}."
+                            );
+                    }
+                }
+            }catch(Exception ex)
             {
-                
-                Console.WriteLine($"Received a text message {e.Message.Text} in chat {e.Message.Chat.Id}.");
-
-                if (e.Message.Text == "/start") 
-                {
-                    await botClient.SendTextMessageAsync(
-                       chatId: e.Message.Chat,
-                        text: $"Hello {e.Message.Chat.FirstName}! \nWrite /register to start recieving weather messages."
-                        );
-                }
-
-                if (e.Message.Text == "/register")
-                {
-                    if (!users.ContainsValue(e.Message.Chat.Id)) {
-                        users.Add(e.Message.Chat.FirstName, e.Message.Chat.Id);
-                        await botClient.SendTextMessageAsync(
-                        chatId: e.Message.Chat,
-                         text: $"You're successfully registered, now you will receive messages every {Delay} milliseconds!"
-                         );
-                      }
-                    else
-                    {
-                        await botClient.SendTextMessageAsync(
-                        chatId: e.Message.Chat,
-                         text: "You're already registered!"
-                         );
-                    }
-                
-                }
-
-                if (e.Message.Text == "/unregister")
-                {
-                    if (users.ContainsValue(e.Message.Chat.Id))
-                    {
-                        users.Remove(e.Message.Chat.FirstName);
-                        await botClient.SendTextMessageAsync(
-                        chatId: e.Message.Chat,
-                         text: $"You're successfully unregistered, now you won't receive messages every {Delay} milliseconds!"
-                         );
-                    }
-                    else
-                    {
-                        await botClient.SendTextMessageAsync(
-                        chatId: e.Message.Chat,
-                         text: "You aren't registered yet!"
-                         );
-                    }
-
-                }
+                Console.WriteLine(ex);
             }
         }
     }
