@@ -1,0 +1,17 @@
+D:\Projects\CS\WeatherBot\WeatherBot\bin\Debug\netcoreapp3.1\WeatherBot.exe
+D:\Projects\CS\WeatherBot\WeatherBot\obj\Debug\netcoreapp3.1\WeatherBot.csprojAssemblyReference.cache
+D:\Projects\CS\WeatherBot\WeatherBot\obj\Debug\netcoreapp3.1\WeatherBot.AssemblyInfoInputs.cache
+D:\Projects\CS\WeatherBot\WeatherBot\obj\Debug\netcoreapp3.1\WeatherBot.AssemblyInfo.cs
+D:\Projects\CS\WeatherBot\WeatherBot\bin\Debug\netcoreapp3.1\WeatherBot.deps.json
+D:\Projects\CS\WeatherBot\WeatherBot\bin\Debug\netcoreapp3.1\WeatherBot.runtimeconfig.json
+D:\Projects\CS\WeatherBot\WeatherBot\bin\Debug\netcoreapp3.1\WeatherBot.runtimeconfig.dev.json
+D:\Projects\CS\WeatherBot\WeatherBot\bin\Debug\netcoreapp3.1\WeatherBot.dll
+D:\Projects\CS\WeatherBot\WeatherBot\bin\Debug\netcoreapp3.1\WeatherBot.pdb
+D:\Projects\CS\WeatherBot\WeatherBot\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
+D:\Projects\CS\WeatherBot\WeatherBot\bin\Debug\netcoreapp3.1\Telegram.Bot.dll
+D:\Projects\CS\WeatherBot\WeatherBot\obj\Debug\netcoreapp3.1\WeatherBot.csproj.CopyComplete
+D:\Projects\CS\WeatherBot\WeatherBot\obj\Debug\netcoreapp3.1\WeatherBot.dll
+D:\Projects\CS\WeatherBot\WeatherBot\obj\Debug\netcoreapp3.1\WeatherBot.pdb
+D:\Projects\CS\WeatherBot\WeatherBot\bin\Debug\netcoreapp3.1\Supremes.dll
+D:\Projects\CS\WeatherBot\WeatherBot\bin\Debug\netcoreapp3.1\HtmlAgilityPack.dll
+D:\Projects\CS\WeatherBot\WeatherBot\bin\Debug\netcoreapp3.1\System.Xml.XPath.XmlDocument.dll
