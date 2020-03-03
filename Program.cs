@@ -12,7 +12,7 @@ namespace WeatherBot
     class Program
     {
         const int Delay = 15000;
-        static TelegramBotClient botClient = new TelegramBotClient("1126393989:AAF36fKABGN07pWkoHwWBdN_jUGE-qtKobs");
+        static TelegramBotClient botClient = new TelegramBotClient("BOT_TOKEN");
         static List<User> users = new List<User>();
         static string weatherString = new string("");
         public static void WeatherThread()
